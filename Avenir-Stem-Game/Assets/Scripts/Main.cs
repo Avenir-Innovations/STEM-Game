@@ -1,10 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.Linq;
+using System.Collections.Generic;
 
 public class Main : MonoBehaviour {
 
-    public Text problemText;
+    public Text problemText, endGameStats;
+    public GameObject winScreen, problemScreen;
     public GameObject player;
     public GameObject[] cpus;
     public Button[] answerButtons = new Button[4];
@@ -21,7 +24,13 @@ public class Main : MonoBehaviour {
     private Vector3 playerPos = new Vector3();
     private bool gameFinished = false;
 
+    private List<string> playerProblems = new List<string>();
+    private List<string> playerAnswers = new List<string>();
+    private List<bool> playerProblemsCorrect = new List<bool>();
+
     public void Start() {
+        problemScreen.SetActive(true);
+
         for (int i = 0; i <= 2; i++) {
             cpuSpeeds[i] = speed;
         }
@@ -36,17 +45,33 @@ public class Main : MonoBehaviour {
         problemText.text = CreateProblem();
         answerButtons[0].gameObject.transform.Find("Text").GetComponent<Text>().text = GenerateAnswer().ToString();
         Debug.Log(answerButtons.Length);
-        for (int i = 1; i < answerButtons.Length; i++) {
-            answerButtons[i].gameObject.transform.Find("Text").GetComponent<Text>().text = GeneratePossibleAns()[i - 1].ToString();
-            Debug.Log(i);
+
+        int[] answers = new int[4];
+        int[] possibleAnswers = GeneratePossibleAns();
+
+        answers[0] = GenerateAnswer();
+        for (int i = 1; i < answers.Length; i++) {
+            answers[i] = possibleAnswers[i - 1];
+        }
+
+        System.Random random = new System.Random();
+        answers = answers.OrderBy(x => random.Next()).ToArray();
+
+        for (int i = 0; i < answerButtons.Length; i++) {
+            answerButtons[i].gameObject.transform.Find("Text").GetComponent<Text>().text = answers[i].ToString();
         }
     }
 
     public string CreateProblem() {
-        num1 = Random.Range(0, 10);
-        num2 = Random.Range(0, 10);
-        oper = operators[Random.Range(0, 3)];
-        return num1.ToString() + oper + num2.ToString();
+        num1 = UnityEngine.Random.Range(0, 10);
+        num2 = UnityEngine.Random.Range(0, 10);
+        oper = operators[UnityEngine.Random.Range(0, 3)];
+        string problemString = num1.ToString() + " " + oper + " " + num2.ToString();
+
+        playerProblems.Add(problemString);
+        playerAnswers.Add(GenerateAnswer().ToString());
+
+        return problemString;
     }
     
     public int GenerateAnswer() {
@@ -65,16 +90,14 @@ public class Main : MonoBehaviour {
     public int[] GeneratePossibleAns() {
         int[] possibleAns = new int[3];
         for (int i = 0; i < 3; i++) {
-            possibleAns[0] = Random.Range(-9, 81);
-
+            possibleAns[0] = UnityEngine.Random.Range(-9, 81);
             if (i > 0) {
-                while (possibleAns[i] == possibleAns[i - 1]) {
-                    possibleAns[i] = Random.Range(-9, 81);
+                while (possibleAns[i] == possibleAns[i - 1] || possibleAns[i] == GenerateAnswer() || possibleAns[i] == possibleAns[0]) {
+                    Debug.Log("ramdonized");
+                    possibleAns[i] = UnityEngine.Random.Range(-9, 81);
                 }
             }
         }
-
-        possibleAns[Random.Range(0, 2)] = GenerateAnswer();
 
         return possibleAns;
     }
@@ -83,11 +106,13 @@ public class Main : MonoBehaviour {
         if (int.Parse(EventSystem.current.currentSelectedGameObject.transform.Find("Text").GetComponent<Text>().text) == GenerateAnswer()) {
             score++;
             speed += 5;
+            playerProblemsCorrect.Add(true);
         } else {
             if (speed >= 10) {
                 speed -= 5;
             }
             missed++;
+            playerProblemsCorrect.Add(false);
         }
 
         NextProblem();
@@ -125,9 +150,26 @@ public class Main : MonoBehaviour {
                 }
             }
 
-            if (finished >= 3 && IsPlayerFinished(playerPos.y)) {
+            if (IsPlayerFinished(playerPos.y)) {
                 gameFinished = true;
+
                 // make winning screen show up
+                problemScreen.SetActive(false);
+                winScreen.SetActive(true);
+
+                string endGameString = "";
+                for (int i = 0; i < playerProblems.Count() - 1; i++) {
+                    if (playerProblemsCorrect[i]) {
+                        endGameString += "Correct: ";
+                    } else {
+                        endGameString += "Incorrect: ";
+                    }
+
+                    endGameString += playerProblems[i] + " = ";
+                    endGameString += playerAnswers[i] + "\n";
+                }
+
+                endGameStats.text = endGameString;
             }
         }
     }
