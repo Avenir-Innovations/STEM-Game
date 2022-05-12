@@ -6,12 +6,13 @@ using System.Collections.Generic;
 
 public class Main : MonoBehaviour {
 
-    public Text problemText, endGameStats;
+    public Text problemText, endGameStats, endGamePlaceText;
     public GameObject winScreen, problemScreen;
     public GameObject player;
     public GameObject[] cpus;
     public Button[] answerButtons = new Button[4];
     public int speed = 50;
+    private int finished = 0;
 
     private char[] operators = { '+', '-', '*' };
     private Vector3[] cpuPositions = new Vector3[3];
@@ -127,18 +128,23 @@ public class Main : MonoBehaviour {
     }
 
     private void Update() {
-        /*if (Input.GetKeyDown(KeyCode.Return)) {
-            CheckAnswer();
-        }*/
-
         if (!gameFinished) {
             playerPos = player.transform.position;
             playerPos.y += speed * Time.deltaTime;
             player.transform.position = playerPos;
 
-            int finished = 0;
             for (int i = 0; i <= 2; i++) {
-                // cpus[i].transform.localPosition = new Vector3(cpus[i].transform.localPosition.x, cpus[i].transform.localPosition.y + cpuSpeeds[i] * Time.deltaTime, cpus[i].transform.localPosition.z);
+                if (UnityEngine.Random.Range(0, 100) == 0) { // 10% chance of speed changing
+                    if (UnityEngine.Random.Range(0, 2) == 0) { //50% chance of speeding up or slowing down
+                        cpuSpeeds[i] += 5;
+                        Debug.Log("speeding up");
+                    } else {
+                        if (cpuSpeeds[i] > 5) {
+                            cpuSpeeds[i] -= 5;
+                            Debug.Log("slowing down");
+                        }
+                    }
+                }
 
                 cpuPositions[i] = cpus[i].transform.position;
                 cpuPositions[i].y += cpuSpeeds[i] * Time.deltaTime;
@@ -169,6 +175,23 @@ public class Main : MonoBehaviour {
                     endGameString += playerAnswers[i] + "\n";
                 }
 
+                string endGamePlace = "";
+                switch (finished) {
+                    case 0:
+                        endGamePlace += "First Place!";
+                        break;
+                    case 1:
+                        endGamePlace += "Second Place!";
+                        break;
+                    case 2:
+                        endGamePlace += "Third Place!";
+                        break;
+                    case 3:
+                        endGamePlace += "Fourth Place!";
+                        break;
+                }
+
+                endGamePlaceText.text = endGamePlace;
                 endGameStats.text = endGameString;
             }
         }
