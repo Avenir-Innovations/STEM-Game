@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Linq;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 public class Main : MonoBehaviour {
@@ -61,6 +62,10 @@ public class Main : MonoBehaviour {
         for (int i = 0; i < answerButtons.Length; i++) {
             answerButtons[i].gameObject.transform.Find("Text").GetComponent<Text>().text = answers[i].ToString();
         }
+    }
+
+    public void MoveToMenu() {
+        SceneManager.LoadScene("Menu");
     }
 
     public string CreateProblem() {
