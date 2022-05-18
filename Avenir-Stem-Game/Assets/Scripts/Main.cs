@@ -8,6 +8,7 @@ public class Main : MonoBehaviour {
 
     public Text problemText, endGameStats, endGamePlaceText;
     public GameObject winScreen, problemScreen;
+    public GameObject playerLabel;
     public GameObject player;
     public GameObject[] cpus;
     public Button[] answerButtons = new Button[4];
@@ -45,7 +46,6 @@ public class Main : MonoBehaviour {
     private void NextProblem() {
         problemText.text = CreateProblem();
         answerButtons[0].gameObject.transform.Find("Text").GetComponent<Text>().text = GenerateAnswer().ToString();
-        Debug.Log(answerButtons.Length);
 
         int[] answers = new int[4];
         int[] possibleAnswers = GeneratePossibleAns();
@@ -94,7 +94,6 @@ public class Main : MonoBehaviour {
             possibleAns[0] = UnityEngine.Random.Range(-9, 81);
             if (i > 0) {
                 while (possibleAns[i] == possibleAns[i - 1] || possibleAns[i] == GenerateAnswer() || possibleAns[i] == possibleAns[0]) {
-                    Debug.Log("ramdonized");
                     possibleAns[i] = UnityEngine.Random.Range(-9, 81);
                 }
             }
@@ -159,6 +158,7 @@ public class Main : MonoBehaviour {
 
                 // make winning screen show up
                 problemScreen.SetActive(false);
+                playerLabel.SetActive(false);
                 winScreen.SetActive(true);
 
                 string endGameString = "";
