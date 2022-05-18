@@ -137,11 +137,9 @@ public class Main : MonoBehaviour {
                 if (UnityEngine.Random.Range(0, 100) == 0) { // 10% chance of speed changing
                     if (UnityEngine.Random.Range(0, 2) == 0) { //50% chance of speeding up or slowing down
                         cpuSpeeds[i] += 5;
-                        Debug.Log("speeding up");
                     } else {
                         if (cpuSpeeds[i] > 5) {
                             cpuSpeeds[i] -= 5;
-                            Debug.Log("slowing down");
                         }
                     }
                 }
